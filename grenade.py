@@ -1,5 +1,8 @@
 import pygame
-from settings import grenade_img, GRAVITY, SCREEN_WIDTH
+from settings import grenade_img, GRAVITY, SCREEN_WIDTH, TILE_SIZE
+from explosão import Explosion
+from player import Soldado
+from main import enemy_group, explosion_group
 
 
 class Grenade(pygame.sprite.Sprite):
@@ -30,3 +33,20 @@ class Grenade(pygame.sprite.Sprite):
         # atualizar pos da granada
         self.rect.x += dx
         self.rect.y += dy 
+        
+        # Contagem regressiva para granada explodir
+        self.timer -= 1
+        if self.timer <= 0:
+            self.kill()
+            explosion = Explosion(self.rect.x, self.rect.y, 0.5)
+            explosion_group.add(explosion)
+            # causar dano
+            if abs(self.rect.centerx - player.rect.centerx) < TILE_SIZE * 2 and \
+                abs(self.rect.centery - player.rect.centery) < TILE_SIZE * 2:
+                player.health -= 50
+            for enemy in enemy_group:
+                if abs(self.rect.centerx - enemy.rect.centerx) < TILE_SIZE * 2 and \
+                    abs(self.rect.centery - enemy.rect.centery) < TILE_SIZE * 2:
+                    enemy.health -= 50        
+        
+        

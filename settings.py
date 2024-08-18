@@ -11,6 +11,8 @@ FPS = 60
 
 # Definir variáveis do jogo
 GRAVITY = 0.75
+scale = 1.5
+TILE_SIZE = 40
 
 # Carregar imagens
 bullet_img = pygame.image.load('Jogo/img/icons/bullet.png').convert_alpha()

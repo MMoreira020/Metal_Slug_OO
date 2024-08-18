@@ -1,5 +1,7 @@
 import pygame
-from settings import screen
+from settings import screen, scale
+
+
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -13,5 +15,16 @@ class Explosion(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (x,y)
         self.counter = 0
-            
+    
+    def update(self):
+        EXPLOSION_SPEED = 4
+        
+        # atualizar a animação da explosão
+        self.counter += 1
+        
+        if self.frame_index >= len(self.images):
+            self.kill()
+        else:
+            self.image = self.images[self.frame_index]
+
  

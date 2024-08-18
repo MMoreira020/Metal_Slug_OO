@@ -4,6 +4,7 @@ from utils import draw_bg
 from player import Soldado
 from bullet import Bullet
 from grenade import Grenade
+from explosão import Explosion
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -16,12 +17,15 @@ grenade = False
 grenade_thrown = False
 
 # Criar grupos de sprites
+enemy_group = pygame.sprite.Group()
 bullet_group = pygame.sprite.Group()
 grenade_group = pygame.sprite.Group()
+explosion_group = pygame.sprite.Group()
 
 # Criar instâncias de personagens
 player = Soldado('player', 200, 200, 3, 5, 20, 5)
 enemy = Soldado('enemy', 400, 200, 3, 5, 20, 0)
+enemy_group.add(enemy)
 
 run = True
 while run:
@@ -37,8 +41,10 @@ while run:
     # Atualizar e desenhar grupos
     bullet_group.update()
     grenade_group.update()
+    explosion_group.update()
     bullet_group.draw(screen)
     grenade_group.draw(screen)
+    explosion_group.draw(screen)
 
     # Atualiza as ações do jogador
     if player.alive:

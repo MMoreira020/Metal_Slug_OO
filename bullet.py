@@ -1,5 +1,6 @@
 import pygame
 from settings import bullet_img, SCREEN_WIDTH
+from main import enemy, enemy_group
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, direction, bullet_group, player, enemy):
@@ -25,7 +26,8 @@ class Bullet(pygame.sprite.Sprite):
             if self.player.alive:
                 self.player.health -= 5
                 self.kill()
-        if pygame.sprite.spritecollide(self.enemy, self.bullet_group, False):
-            if self.enemy.alive:
-                self.enemy.health -= 25
-                self.kill()
+        for enemy in enemy_group:
+            if pygame.sprite.spritecollide(self.enemy, self.bullet_group, False):
+                if self.enemy.alive:
+                    self.enemy.health -= 25
+                    self.kill()
