@@ -16,6 +16,11 @@ FPS = 60
 # Definir variáveis do jogo
 GRAVITY = 0.75
 TILE_SIZE = 40
+ROWS = 16
+COLS = 150
+TILE_SIZE = SCREEN_HEIGHT // ROWS
+TILE_TYPES = 21
+level = 1
 
 # Inicializar variáveis de controle
 moving_left = False
@@ -25,6 +30,11 @@ grenade = False
 grenade_thrown = False
 
 # Carregar imagens
+img_list = []
+for x in range(TILE_TYPES):
+    img = pygame.image.load(f'Jogo/img/tile/{x}.png')
+    img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
+    img_list.append(img)
 # bala
 bullet_img = pygame.image.load('Jogo/img/icons/bullet.png').convert_alpha()
 # granada
@@ -47,3 +57,6 @@ bullet_group = pygame.sprite.Group()
 grenade_group = pygame.sprite.Group()
 explosion_group = pygame.sprite.Group()
 item_box_group = pygame.sprite.Group()
+decoration_group = pygame.sprite.Group()
+water_group = pygame.sprite.Group()
+exit_group = pygame.sprite.Group()

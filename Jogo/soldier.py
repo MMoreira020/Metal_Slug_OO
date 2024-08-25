@@ -25,7 +25,11 @@ class Soldado(pygame.sprite.Sprite):
         self.frame_index = 0
         self.action = 0
         self.update_time = pygame.time.get_ticks()
- 
+        # variáveis específicas de Ia
+        self.move_counter = 0
+        self.vision = pygame.Rect(0, 0, 150, 20)
+        self.marcha = False
+        self.marcha_lenta = 0
         
         # Carregar todas imagens do jogador
         animation_types = ['Idle', 'Run', 'Jump', 'Death']
@@ -85,6 +89,41 @@ class Soldado(pygame.sprite.Sprite):
             bullet = Bullet(self.rect.centerx + (0.75 * self.rect.size[0] * self.direction), self.rect.centery, self.direction)
             bullet_group.add(bullet)
             self.ammo -= 1
+    
+        
+    def ai(self):
+        from main import player  
+        if self.alive and player.alive:
+            if self.marcha == False and random.randint(1, 200) == 1:
+                self.update_action(0) #0 ocioso
+                self.marcha = True
+                self.marcha_lenta = 50
+            # verificar se a Ia esta perto do jogador
+            if self.vision.colliderect(player.rect):
+                # parar de correr e enfrentar o jogador
+                self.update_action(0) # 0 correr
+                # atirar
+                self.shoot()
+            else:
+                if self.marcha == False:
+                    if self.direction == 1:
+                        ai_moving_right = True
+                    else:
+                        ai_moving_right = False 
+                    ai_moving_left = not ai_moving_right
+                    self.move(ai_moving_left, ai_moving_right)
+                    self.update_action(1) #1 correr
+                    self.move_counter += 1
+                    # atualizar a visão de IA conforme o nimigo se move
+                    self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)
+                    
+                    if self.move_counter > TILE_SIZE:
+                        self.direction *= -1
+                        self.move_counter *= -1
+                else:
+                    self.marcha_lenta -= 1
+                    if self.marcha_lenta <= 0:
+                        self.marcha = False
                 
             
     def update_animation(self):
