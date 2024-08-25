@@ -1,77 +1,94 @@
 import pygame
-from settings import screen, FPS
-from utils import draw_bg
-from player import Soldado
+import sys
+from config import screen, clock, FPS, enemy_group, bullet_group, grenade_group, explosion_group, shoot, grenade, grenade_thrown, moving_left, moving_right, item_box_group, font, WHITE, bullet_img, grenade_img
+from utils import draw_bg, draw_text
+from soldier import Soldado
+from enemy import Inimigo
 from bullet import Bullet
 from grenade import Grenade
-from explosão import Explosion
+from itembox import CaixaDeItem
+from barra_de_saude import HealthBar
 
-pygame.init()
-clock = pygame.time.Clock()
+# Caixas de itens
+item_box = CaixaDeItem('Health', 100, 260)
+item_box_group.add(item_box)
+item_box = CaixaDeItem('Ammo', 400, 260)
+item_box_group.add(item_box)
+item_box = CaixaDeItem('Grenade', 500, 260)
+item_box_group.add(item_box)
 
-# Inicializar variáveis do jogo
-moving_left = False
-moving_right = False
-shoot = False
-grenade = False
-grenade_thrown = False
 
-# Criar grupos de sprites
-enemy_group = pygame.sprite.Group()
-bullet_group = pygame.sprite.Group()
-grenade_group = pygame.sprite.Group()
-explosion_group = pygame.sprite.Group()
+player = Soldado('player', 200, 200, 1.65, 5, 20, 5)
+health_bar = HealthBar(10, 10, player.health, player.health)
 
-# Criar instâncias de personagens
-player = Soldado('player', 200, 200, 3, 5, 20, 5)
-enemy = Soldado('enemy', 400, 200, 3, 5, 20, 0)
+enemy = Inimigo(500, 200, 1.65, 2, 20, 0)  
+enemy2 = Inimigo(300, 200, 1.65, 2, 20, 0)
 enemy_group.add(enemy)
+enemy_group.add(enemy2)
+
 
 run = True
 while run:
+    
     clock.tick(FPS)
+    
     draw_bg()
-
+    # mostar cura do jogador
+    health_bar.draw(player.health)
+    # mostrar munição
+    draw_text(f'AMMO: ', font, WHITE, 10, 35)
+    for x in range(player.ammo):
+        screen.blit(bullet_img, (90 + (x * 10), 40))
+    # mostrar granada
+    draw_text(f'GRENADES: ', font, WHITE, 10, 60)
+    for x in range(player.grenades):
+        screen.blit(grenade_img, (135 + (x * 15), 60))
+    
     player.update()
     player.desenhar()
-
-    enemy.update()
-    enemy.desenhar()
+   
+    for enemy in enemy_group: 
+        enemy.ai()
+        enemy.update()
+        enemy.desenhar()
 
     # Atualizar e desenhar grupos
     bullet_group.update()
     grenade_group.update()
     explosion_group.update()
+    item_box_group.update()
     bullet_group.draw(screen)
     grenade_group.draw(screen)
     explosion_group.draw(screen)
-
+    item_box_group.draw(screen)
+    
     # Atualiza as ações do jogador
     if player.alive:
         # Atirar balas
         if shoot:
-            player.shoot(bullet_group, enemy)
+            player.shoot()
         # Lançar granadas
         elif grenade and not grenade_thrown and player.grenades > 0:
             grenade = Grenade(player.rect.centerx + (0.5 * player.rect.size[0] * player.direction), 
                               player.rect.top, player.direction)
             grenade_group.add(grenade)
+            # Reduzir granadas
             player.grenades -= 1
-            grenade_thrown = True
-
+            grenade_thrown = True          
         if player.in_air:
-            player.update_action(2)  # Pular
+            player.update_action(2)  # 2: Pular
         elif moving_left or moving_right:
-            player.update_action(1)  # Correr
+            player.update_action(1)  # 1: correr
         else:
-            player.update_action(0)  # Ocioso
+            player.update_action(0)  # 0: ocioso
         player.move(moving_left, moving_right)
-
+    
+    # Capturar eventos
     for event in pygame.event.get():
         # Sair do jogo
         if event.type == pygame.QUIT:
             run = False
-        # Teclado
+        # Teclado 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_a:
                 moving_left = True
@@ -85,7 +102,7 @@ while run:
                 player.jump = True
             if event.key == pygame.K_ESCAPE:
                 run = False
-
+        
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
                 moving_left = False
@@ -96,7 +113,7 @@ while run:
             if event.key == pygame.K_q:
                 grenade = False
                 grenade_thrown = False
-
+                
         # Mouse
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 3:  # Botão direito do mouse
@@ -108,5 +125,6 @@ while run:
                 shoot = False
 
     pygame.display.update()
-
+            
 pygame.quit()
+sys.exit()
